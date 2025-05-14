@@ -1,0 +1,35 @@
+#!/bin/bash
+
+#SBATCH --partition=gpu_a100
+#SBATCH --gpus=1
+#SBATCH --job-name=llama
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=9
+#SBATCH --time=04:00:00
+#SBATCH --output=slurm_output_%A.out
+
+module purge
+module load 2023
+module load Anaconda3/2023.07-2
+
+# Enter the Git repository
+# echo "Entering the repository..."
+# cd atcs-practical  # Replace with your repository directory name
+
+# # Step 1: Setup environment
+# echo "Creating and activating Conda environment..."
+# conda create -n axiomatic_ir python=3.10 -y
+source activate atcs
+
+# conda install pytorch torchvision torchaudio -c pytorch
+# pip install transformers transformer-lens
+
+# pip install --no-deps beir
+# python -c "import torch; print('Torch version:', torch.__version__)"
+# python -c "import torchvision; print('TorchVision version:', torchvision.__version__)"
+
+#pip install matplotlib seaborn 
+
+#run demo
+
+python run_vllm.py --model_name_or_path meta-llama/Llama-3.1-8B --log_file /home/scur1431/ATCS_Project/LLM_Results/llama.log
