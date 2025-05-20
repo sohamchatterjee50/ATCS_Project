@@ -32,4 +32,7 @@ source activate atcs
 
 #run demo
 
-python run_vllm.py --model_name_or_path meta-llama/Llama-3.1-8B --log_file /home/scur1431/ATCS_Project/LLM_Results/llama.log
+python run_vllm.py --model_name_or_path meta-llama/Llama-3.1-8B --log_file /home/scur1431/ATCS_Project/LLM_Results/llama_c2.log
+python run_vllm.py --model_name_or_path deepseek-ai/DeepSeek-R1-Distill-Llama-8B --log_file /home/scur1431/ATCS_Project/LLM_Results/llama_ds_c2.log
+python run_vllm.py  --log_file /home/scur1431/ATCS_Project/LLM_Results/phi4-r_c2.log
+python run_vllm.py  --model_name_or_path microsoft/phi-4 --log_file /home/scur1431/ATCS_Project/LLM_Results/phi4_c2.log
