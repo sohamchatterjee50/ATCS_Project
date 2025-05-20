@@ -1,3 +1,0 @@
-is_stereotypical_sample,count,accuracy,avg_length,expl_rate,stereo_pred_rate
-False,150,0.02,470.76666666666665,0.5666666666666667,0.006666666666666667
-True,150,0.02,495.37333333333333,0.56,0.02
