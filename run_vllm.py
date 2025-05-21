@@ -6,18 +6,6 @@ from transformers import AutoTokenizer
 from vllm import LLM, SamplingParams
 
 
-SYSTEM_PROMPT = (
-    "You are Phi, a language model trained by Microsoft to help users. "
-    "Your role as an assistant involves thoroughly exploring questions through a systematic thinking process before providing the final precise and accurate solutions. "
-    "This requires engaging in a comprehensive cycle of analysis, summarizing, exploration, reassessment, reflection, backtracing, and iteration to develop well-considered thinking process. "
-    "Please structure your response into two main sections: Thought and Solution using the specified format: <think> {Thought section} </think> {Solution section}. "
-    "In the Thought section, detail your reasoning process in steps. Each step should include detailed considerations such as analysing questions, summarizing relevant findings, brainstorming new ideas, verifying the accuracy of the current steps, refining any errors, and revisiting previous steps. "
-    "In the Solution section, based on various attempts, explorations, and reflections from the Thought section, systematically present the final solution that you deem correct. "
-    "The Solution section should be logical, accurate, and concise and detail necessary steps needed to reach the conclusion. "
-    "Now, try to solve the following question through the above guidelines:"
-)
-
-
 def parse_args():
     parser = argparse.ArgumentParser(
         description="Run batch inference for BBQ disambiguation-context samples with vLLM and Microsoft Phi-4 ChatML formatting"
@@ -34,7 +22,7 @@ def parse_args():
     )
     parser.add_argument(
         "--data_file", type=str,
-        default="/home/scur1431/ATCS_Project/BBQ/Religion.jsonl",
+        default="/home/scur1431/ATCS_Project/BBQ/Gender_identity.jsonl",
         help="Path to the input JSONL dataset file"
     )
     parser.add_argument(
@@ -63,6 +51,13 @@ def parse_args():
         "--temperature", type=float, default=0.7,
         help="Temperature for sampling"
     )
+    parser.add_argument(
+        "--msg_format", type=int, choices=[1, 2, 3], default=1,
+        help=(
+            "User message format: 1=question with options and context,"
+            " 2=context only, 3=question only with context replacing question"
+        )
+    )
     return parser.parse_args()
 
 
@@ -84,19 +79,24 @@ def main():
         device=args.device
     )
 
-    # Load and filter dataset: only samples with context_condition == 'disambiguation'
+    # Load dataset
     all_samples = []
     with open(args.data_file, 'r') as f:
         for line in f:
             all_samples.append(json.loads(line))
-    filtered_samples = [s for s in all_samples if s.get('context_condition') == 'disambig']
-    print(len(filtered_samples))
-    # Batch processing on filtered data
+
+    # Filter samples based on message format
+    if args.msg_format in (1, 3):
+        filtered_samples = [s for s in all_samples if s.get('context_condition') == 'disambig']
+    else:
+        filtered_samples = all_samples
+    print(f"Total samples to process: {len(filtered_samples)}")
+
+    # Process in batches
     for batch_start in range(args.start_index, len(filtered_samples), args.batch_size):
         batch_end = min(batch_start + args.batch_size, len(filtered_samples))
         batch = filtered_samples[batch_start:batch_end]
 
-        # Prepare ChatML-formatted prompts
         requests = []
         for sample in batch:
             question = sample.get('question', '').strip()
@@ -105,33 +105,36 @@ def main():
             ans2 = sample.get('ans2', '').strip()
             context = sample.get('context', '').strip()
 
-            # Build user message
-            user_msg = f"{question} (a) {ans0} (b) {ans1} (c) {ans2}"
-            if context:
-                user_msg += f"\n\nContext: {context}"
+            # Build user message based on selected format
+            if args.msg_format == 1:
+                user_msg = f"{question} (a) {ans0} (b) {ans1} (c) {ans2}"
+                if context:
+                    user_msg += f"\n\nContext: {context}"
+            elif args.msg_format == 2:
+                user_msg = f"\n\nContext: {context}" if context else ""
+            else:  # args.msg_format == 3
+                user_msg = f"{question}"
+                if context:
+                    user_msg = f"\n\nContext: {context}"
 
-            # Assemble ChatML template
+            # Assemble ChatML prompt WITHOUT any system prompt
             prompt = (
-                #f"<|im_start|>system<|im_sep|>{SYSTEM_PROMPT}<|im_end|>"
-                f"\n<|im_start|>user<|im_sep|>{user_msg}<|im_end|>"
-                f"\n<|im_start|>assistant<|im_sep|>"
+                f"<|im_start|>user<|im_sep|>{user_msg}<|im_end|>\n"
+                f"<|im_start|>assistant<|im_sep|>"
             )
-
             requests.append({"prompt": prompt})
 
-        # Setup sampling parameters
+        # Sampling parameters
         sampling_params = SamplingParams(
             temperature=args.temperature,
             max_tokens=args.max_new_tokens
         )
 
-        # Generate with vLLM
+        # Run generation
         results = llm.generate(requests, sampling_params)
 
-        # Decode outputs
+        # Log outputs
         outputs = [res.outputs[0].text for res in results]
-
-                # Logging results in JSONL for downstream analysis
         with open(args.log_file, 'a') as logf:
             for i, out in enumerate(outputs):
                 idx = batch_start + i
@@ -145,7 +148,7 @@ def main():
                     "context": sample.get('context', '').strip(),
                     "response": out.strip()
                 }
-                logf.write(json.dumps(record) + "")
+                logf.write(json.dumps(record) + "\n")
 
         print(f"Processed batch {batch_start}-{batch_end - 1}, appended to {args.log_file}")
 
