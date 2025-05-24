@@ -1,3 +1,0 @@
-is_stereotypical_sample,total,extracted,accuracy,avg_length,expl_rate,stereo_pred_rate,stereo_mentions,anti_mentions
-False,900.0,306.0,0.3104575163398693,708.4211111111111,0.45,0.17222222222222222,952.0,945.0
-True,300.0,199.0,0.4824120603015075,655.83,0.51,0.32,664.0,632.0
