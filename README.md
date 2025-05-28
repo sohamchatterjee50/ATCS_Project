@@ -1,18 +1,20 @@
-# Explanatory Bias in Large Language Models  
-**Comparing Reasoning and Non-Reasoning Models on Stereotypical Prompts**  
-_Soham Chatterjee, Pearl Owusu, Oliver Savolainen, Yushuang Wang_  
+# Explanatory Bias in Large Language Models
 
-This repository contains all code, data, and analyses for the experiments in our paper: **“Explanatory Bias in Large Language Models: Comparing Reasoning and Non-Reasoning Models on Stereotypical Prompts”**.  
+**Comparing Reasoning and Non-Reasoning Models on Stereotypical Prompts**
+*Soham Chatterjee, Pearl Owusu, Oliver Savolainen, Yushuang Wang*
+
+This repository contains all code, data, and analyses for the experiments in our paper: **“Explanatory Bias in Large Language Models: Comparing Reasoning and Non-Reasoning Models on Stereotypical Prompts”**.
 
 ---
 
 ## ⚙️ Installation
 
 1. Clone this repo:
+
    ```bash
    git clone https://github.com/your-org/ATCS_PROJECT.git
    cd ATCS_PROJECT
-````
+   ```
 
 2. Install Python dependencies:
 
