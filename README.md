@@ -24,7 +24,7 @@ This repository contains all code, data, and analyses for the experiments in our
 
 ---
 
-## 💻 Usage
+## Usage
 
 ### 1. Run vLLM inference
 
@@ -75,7 +75,7 @@ python combined_analysis.py \
 
 ---
 
-## 📊 Results & Artifacts
+## Results
 
 * **`main_results_per_category_and_model/`**
   CSV summaries and plots broken out by demographic category (Age, Gender, Religion) and model.
@@ -88,6 +88,3 @@ python combined_analysis.py \
 
 * **`qualitative/`**
   Curated examples, error analyses, and thematic observations.
-
-```
-```
